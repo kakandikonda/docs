@@ -1,127 +1,691 @@
 {
-  "openapi": "3.1.0",
-  "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
-  },
-  "servers": [
-    {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
-  "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+	"openapi": "3.1.0",
+	"info": {
+		"title": "LiquidIndex API",
+		"description": "LiquidIndex API provides semantic search and document processing capabilities. The API enables users to upload documents and perform semantic queries across their content.",
+		"version": "1.0.0"
+	},
+	"servers": [
+		{
+			"url": "https://api.liquidindex.dev/"
+		}
+	],
+	"security": [
+		{
+			"bearerAuth": []
+		}
+	],
+	"paths": {
+		"/query/project": {
+			"post": {
+				"summary": "Query a project",
+				"description": "Returns semantically similar content based on the input query",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": ["project_id", "query"],
+								"properties": {
+									"project_id": {
+										"type": "string",
+										"description": "The Project ID to query from"
+									},
+									"query": {
+										"type": "string",
+										"description": "The input text used to find similar matches"
+									},
+									"top_k": {
+										"type": "integer",
+										"description": "Number of matches to return",
+										"default": 5
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful query response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"required": ["results", "usage"],
+									"properties": {
+										"results": {
+											"type": "object",
+											"required": ["chunks"],
+											"properties": {
+												"chunks": {
+													"type": "array",
+													"items": {
+														"$ref": "#/components/schemas/Query"
+													}
+												},
+												"llm": {
+													"type": "string",
+													"description": "LLM generated response based on the query and chunks"
+												}
+											}
+										},
+										"usage": {
+											"type": "object",
+											"required": ["read_units", "embedding_units"],
+											"properties": {
+												"read_units": {
+													"type": "integer",
+													"description": "Number of read units consumed"
+												},
+												"embedding_units": {
+													"type": "integer",
+													"description": "Number of embedding units consumed"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/query/customer": {
+			"post": {
+				"summary": "Query a customer",
+				"description": "Returns semantically similar content based on the input query",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": ["customer_id", "query"],
+								"properties": {
+									"customer_id": {
+										"type": "string",
+										"description": "The Customer ID to query from"
+									},
+									"query": {
+										"type": "string",
+										"description": "The input text used to find similar matches"
+									},
+									"top_k": {
+										"type": "integer",
+										"description": "Number of matches to return",
+										"default": 5
+									},
+									"include_llm": {
+										"type": "boolean",
+										"description": "Whether to include the LLM response in the response",
+										"default": true
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful query response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"required": ["results", "usage"],
+									"properties": {
+										"results": {
+											"type": "object",
+											"required": ["chunks"],
+											"properties": {
+												"chunks": {
+													"type": "array",
+													"items": {
+														"$ref": "#/components/schemas/Query"
+													}
+												},
+												"llm": {
+													"type": "string",
+													"description": "LLM generated response based on the query and chunks"
+												}
+											}
+										},
+										"usage": {
+											"type": "object",
+											"required": ["read_units", "embedding_units"],
+											"properties": {
+												"read_units": {
+													"type": "integer",
+													"description": "Number of read units consumed"
+												},
+												"embedding_units": {
+													"type": "integer",
+													"description": "Number of embedding units consumed"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/customer/create": {
+			"post": {
+				"summary": "Query a project",
+				"description": "Returns semantically similar content based on the input query",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": ["project_id", "name"],
+								"properties": {
+									"project_id": {
+										"type": "string",
+										"description": "The Project ID to query from"
+									},
+									"name": {
+										"type": "string",
+										"description": "The name you'd like to refer to the customer as"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful query response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"required": ["customer_id"],
+									"properties": {
+										"customer_id": {
+											"type": "string",
+											"description": "The Customer ID to query from"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/session/multi-tenant": {
+		"post": {
+					"summary": "Create a multi-tenant session",
+					"description": "Returns a session URL for multi-tenant operations",
+					"requestBody": {
+						"required": true,
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"required": ["project_id", "services", "customer_id", "success_url", "cancel_url"],
+									"properties": {
+										"project_id": {
+											"type": "string",
+											"description": "The Project ID to query from"
+										},
+										"services": {
+											"type": "array",
+											"description": "The services to be used in the session",
+											"items": {
+												"type": "string",
+												"enum": ["all", "file_upload", "google_drive"]
+											}
+										},
+					"customer_id": {
+						"type": "string",
+						"description": "The Customer ID to query from"
+					},
+					"success_url": {
+						"type": "string",
+						"description": "The URL to redirect to after the session is complete"
+					},
+					"cancel_url": {
+						"type": "string",
+						"description": "The URL to redirect to if the session is cancelled"
+					}
+									}
+								}
+							}
+						}
+					},
+					"responses": {
+						"200": {
+							"description": "Successful query response",
+							"content": {
+								"application/json": {
+									"schema": {
+										"type": "object",
+										"properties": {
+											"url": {
+												"type": "string",
+												"description": "The URL to redirect to after the session is complete"
+											}
+										}
+									}
+								}
+							}
+						},
+						"400": {
+							"description": "Bad request",
+							"content": {
+								"application/json": {
+									"schema": {
+										"$ref": "#/components/schemas/Error"
+									}
+								}
+							}
+						}
+					}
+				}
+		},
+		"/session/single-tenant": {
+		"post": {
+					"summary": "Create a single-tenant session",
+					"description": "Returns a session URL for single-tenant operations",
+					"requestBody": {
+						"required": true,
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"required": ["project_id", "services", "success_url", "cancel_url"],
+									"properties": {
+										"project_id": {
+											"type": "string",
+											"description": "The Project ID to query from"
+										},
+										"services": {
+											"type": "array",
+											"description": "The services to be used in the session",
+											"items": {
+												"type": "string",
+												"enum": ["all", "file_upload", "google_drive"]
+											}
+										},
+					"success_url": {
+						"type": "string",
+						"description": "The URL to redirect to after the session is complete"
+					},
+					"cancel_url": {
+						"type": "string",
+						"description": "The URL to redirect to if the session is cancelled"
+					}
+									}
+								}
+							}
+						}
+					},
+					"responses": {
+						"200": {
+							"description": "Successful query response",
+							"content": {
+								"application/json": {
+									"schema": {
+										"type": "object",
+										"properties": {
+											"url": {
+												"type": "string",
+												"description": "The URL to redirect to after the session is complete"
+											}
+										}
+									}
+								}
+							}
+						},
+						"400": {
+							"description": "Bad request",
+							"content": {
+								"application/json": {
+									"schema": {
+										"$ref": "#/components/schemas/Error"
+									}
+								}
+							}
+						}
+					}
+				}
+		},
+		"/upload/file": {
+			"post": {
+				"summary": "Upload documents",
+				"description": "Upload documents to be processed and indexed for semantic search",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"file": {
+										"type": "string",
+										"format": "binary",
+										"description": "The documents to be uploaded and processed"
+									},
+									"data": {
+										"type": "object",
+										"properties": {
+											"owner_id": {
+												"type": "string",
+												"description": "The project/customer ID to associate the file with"
+											}
+										},
+										"required": ["owner_id"]
+									}
+								},
+								"required": ["file", "data"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Documents uploaded successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"job_id": {
+											"type": "string",
+											"example": "1234567890",
+											"description": "The Job ID belonging to the file upload"
+										},
+										"status": {
+											"type": "string",
+											"example": "PENDING",
+											"description": "The status of the file upload"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		
+		"/upload/text": {
+			"post": {
+				"summary": "Upload text",
+				"description": "Upload text to be processed and indexed for semantic search",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": ["owner_id", "text"],
+								"properties": {
+									"owner_id": {
+										"type": "string",
+										"description": "The project/customer ID to associate the text with"
+									},
+									"text": {
+										"type": "string",
+										"description": "The text to be uploaded and processed"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful query response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"required": ["job_id", "status"],
+									"properties": {
+										"job_id": {
+											"type": "string",
+											"example": "1234567890",
+											"description": "The Job ID belonging to the text upload"
+										},
+										"status": {
+											"type": "string",
+											"example": "PENDING",
+											"description": "The status of the text upload"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/status/job/{job_id}": {
+			"get": {
+				"summary": "Get job status",
+				"description": "Get the status of a job",
+				"parameters": [
+					{
+						"name": "job_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "The ID of the job to check status for"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Job status retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"required": ["status"],
+									"properties": {
+										"status": {
+											"type": "string",
+											"description": "Current status of the job",
+											"enum": ["PENDING", "QUEUED", "SUCCESS", "ERROR"]
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Job not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/subpage": {
+			"post": {
+				"summary": "Create a subpage",
+				"description": "SubPages lets you extract a focused slice of a larger PDF. Pick a page and a variance, and it generates a smaller PDF centered around that page.",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"required": ["chunk_id", "owner_id", "varience"],
+								"properties": {
+									"chunk_id": {
+										"type": "string",
+										"description": "The ID of the chunk to create a subpage for"
+									},
+									"owner_id": {
+										"type": "string",
+										"description": "The project/customer ID to associate the subpage with"
+									},
+									"varience": {
+										"type": "number",
+										"description": "Variance defines how many pages before and after a selected page are included to form the SubPage."
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Subpage created successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"subpage_url": {
+											"type": "string",
+											"description": "The URL of the subpage"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+    "/internet/search": {
+      "post": {
+        "summary": "Search the internet",
+        "description": "Search the internet for information",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["query"],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "The query to search the internet for"
+                  }
+                }
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Search results",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "string",
+                      "description": "The search results"
+                    }
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Unexpected error",
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "The error message"
+                    }
+                  }
                 }
               }
             }
@@ -130,88 +694,64 @@
       }
     }
   },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
-      }
-    }
-  }
+
+
+	"components": {
+		"schemas": {
+			"Query": {
+				"type": "object",
+				"required": ["score", "content", "metadata"],
+				"properties": {
+					"score": {
+						"type": "number",
+						"format": "double",
+						"description": "Similarity score of the matched content"
+					},
+					"content": {
+						"type": "string",
+						"description": "The matched content"
+					},
+					"metadata": {
+						"type": "object",
+						"description": "Additional information about the matched content",
+						"required": ["id", "file", "source", "type"],
+						"properties": {
+							"id": {
+								"type": "string",
+								"description": "Unique identifier of the content"
+							},
+							"file": {
+								"type": "string",
+								"description": "Source file name"
+							},
+							"source": {
+								"type": "string",
+								"description": "Content source (e.g., Google Docs, Notion)"
+							},
+							"type": {
+								"type": "string",
+								"description": "Content type (e.g., TEXT, IMAGE, VIDEO)"
+							}
+						}
+					}
+				}
+			},
+			"Error": {
+				"type": "object",
+				"required": ["error"],
+				"properties": {
+					"error": {
+						"type": "string",
+						"description": "Error message describing what went wrong"
+					}
+				}
+			}
+		},
+		"securitySchemes": {
+			"bearerAuth": {
+				"type": "http",
+				"scheme": "bearer"
+			}
+		}
+	}
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "theme": "maple",
+  "name": "LiquidIndex Docs",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -11,7 +11,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "API Reference",
         "groups": [
           {
             "group": "Getting started",
@@ -22,71 +22,68 @@
             ]
           },
           {
-            "group": "Customization",
+            "group": "Multi-Tenant",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "api-reference/endpoint/new-customer",
+              "api-reference/endpoint/session-mt",
+              "api-reference/endpoint/query-customer"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Single-Tenant",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "api-reference/endpoint/session-st",
+              "api-reference/endpoint/query-project"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Upload API",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "api-reference/endpoint/upload-file",
+              "api-reference/endpoint/upload-text",
+              "api-reference/endpoint/job-status"
+            ]
+          },
+          {
+            "group": "Subpages",
+            "pages": [
+              "api-reference/endpoint/subpages"
+            ]
+          },
+          {
+            "group": "Internet",
+            "pages": [
+              "api-reference/endpoint/internet-search"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Changelog",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Overview",
             "pages": [
-              "api-reference/introduction"
+              "changelog/introduction"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Version Updates",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "changelog/versions/v0.0.9",
+              "changelog/versions/v0.0.8",
+              "changelog/versions/v0.0.7",
+              "changelog/versions/v0.0.6",
+              "changelog/versions/v0.0.5",
+              "changelog/versions/v0.0.4",
+              "changelog/versions/v0.0.3",
+              "changelog/versions/v0.0.2",
+              "changelog/versions/v0.0.1"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",
