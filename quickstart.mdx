@@ -1,80 +1,375 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+icon: "rocket"
+description: "Integrate production-ready RAG in minutes"
 ---
 
-## Get started in three steps
+Get up and running with LiquidIndex in under 10 minutes. This guide walks you through building a complete multi-tenant RAG system that your users can immediately start using.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+<Steps>
+  <Step title="Create a Project">
+    Create a project and generate an API key in the [LiquidIndex dashboard](https://liquidindex.dev/app) (requires card on file).
+  </Step>
+  <Step title="Install Dependencies">
+    <CodeGroup>
+    ```bash Node.js
+    npm install express axios dotenv
+    ```
+    ```bash Python
+    pip install flask requests python-dotenv
+    ```
+    </CodeGroup>
+  </Step>
+  <Step title="Set Environment Variables">
+    Create a `.env` file in your project root:
+    ```bash .env
+    PROJECT_ID=your_project_id_here
+    API_KEY=your_api_key_here
+    ```
+  </Step>
+</Steps>
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+## Build Your RAG Backend
+
+This guide shows you how to build a [Multi-Tenant](/concepts#multi-tenant) system. You'll create three simple endpoints that handle the complete RAG workflow: customer creation, file uploads, and semantic search.
+
+### 1. Create a Customer
+
+Create an endpoint to register new customers in your system. Each customer gets their own isolated data space. 
+
+
+<CodeGroup dropdown>
+
+```javascript lqx.js lines
+app.post("/create-customer", async (req, res) => {
+    const url = 'https://api.liquidindex.dev/customer/create'
+    const response = await axios.post(url, {
+        project_id: process.env.PROJECT_ID,
+        name: req.body.name,
+    }, {
+        headers: {
+            Authorization: `Bearer ${process.env.API_KEY}`,
+        }
+    });
+    const customer_id = response.data.customer_id
+    return res.status(200).json({ customer_id: customer_id });
+});
+
+```
+
+```python lqx.py lines
+from flask import Flask, request, jsonify
+import requests
+import os
+
+app = Flask(__name__)
+
+@app.route('/create-customer', methods=['POST'])
+def create_customer():
+    url = 'https://api.liquidindex.dev/customer/create'
+    response = requests.post(url, json={
+        'project_id': os.getenv('PROJECT_ID'),
+        'name': request.json['name'],
+    }, headers={
+        'Authorization': f'Bearer {os.getenv("API_KEY")}',
+    })
+    customer_id = response.json()['customer_id']
+    return jsonify({'customer_id': customer_id}), 200
+```
+
+```bash cURL
+curl -X POST "https://api.liquidindex.dev/customer/create" \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_id": "'$PROJECT_ID'",
+    "name": "Customer Name"
+  }'
+```
+
+
+</CodeGroup>
+
+You can view the API reference [here](/api-reference/endpoint/new-customer)
+
+
+### 2. Create an Upload Session
+
+Generate a secure upload URL where your customers can upload their documents. LiquidIndex handles all the file processing and indexing automatically.
+
+<CodeGroup dropdown>
+
+```javascript lqx.js lines
+app.post("/create-session", async (req, res) => {
+    const { customer_id } = req.body;
+    const url = 'https://api.liquidindex.dev/session/multi-tenant'
+    const response = await axios.post(url, {
+        project_id: process.env.PROJECT_ID,
+        services: ["all"],
+        customer_id: customer_id,
+        success_url: "http://localhost:3000?success=true",
+        cancel_url: "http://localhost:3000?cancel=true",
+    }, {
+        headers: {
+            Authorization: `Bearer ${process.env.API_KEY}`,
+        }
+    });
+    res.redirect(303, response.data.url);
+});
+```
+
+```python lqx.py lines
+@app.route('/create-session', methods=['POST'])
+def create_session():
+    url = 'https://api.liquidindex.dev/session/multi-tenant'
+    customer_id = request.json['customer_id']
+    response = requests.post(url, json={
+        'project_id': os.getenv('PROJECT_ID'),
+        'services': ["all"],
+        'customer_id': customer_id,
+        'success_url': "http://localhost:3000?success=true",
+        'cancel_url': "http://localhost:3000?cancel=true",
+    }, headers={
+        'Authorization': f'Bearer {os.getenv("API_KEY")}',
+    })
+    return redirect(response.json()['url'], code=303)
+```
+
+```bash cURL
+curl -X POST "https://api.liquidindex.dev/session/multi-tenant" \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_id": "'$PROJECT_ID'",
+    "services": ["all"],
+    "customer_id": "CUSTOMER_ID",
+    "success_url": "http://localhost:3000?success=true",
+    "cancel_url": "http://localhost:3000?cancel=true"
+  }'
+```
+</CodeGroup>
+
+You can view the API reference [here](/api-reference/endpoint/session-mt)
+
+
+### 3. Query Customer Data
+
+Perform semantic search across a customer's uploaded documents. Get relevant chunks and AI-generated answers in one API call. 
+
+<CodeGroup dropdown>
+
+```javascript lqx.js lines
+app.post("/query", async (req, res) => {
+    const url = 'https://api.liquidindex.dev/query/customer'
+    const { query, customer_id } = req.body;
+    const response = await axios.post(url, {
+        customer_id: customer_id,
+        query: query,
+        top_k: 5
+    }, {
+        headers: {
+            Authorization: `Bearer ${process.env.API_KEY}`,
+        }
+    });
+    return res.status(200).json(response.data);
+});
+```
+
+```python lqx.py lines
+@app.route('/query', methods=['POST'])
+def query():
+    url = 'https://api.liquidindex.dev/query/customer'
+    data = request.json
+    query_text = data['query']
+    customer_id = data['customer_id']
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    response = requests.post(url, json={
+        'customer_id': customer_id,
+        'query': query_text,
+        'top_k': 5
+    }, headers={
+        'Authorization': f'Bearer {os.getenv("API_KEY")}',
+    })
+    return jsonify(response.json()), 200
+```
+
+```bash cURL
+curl -X POST "https://api.liquidindex.dev/query/customer" \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer_id": "CUSTOMER_ID",
+    "query": "Your search query here",
+    "top_k": 5
+  }'
+```
+</CodeGroup>
+
+You can view the API reference [here](/api-reference/endpoint/query-customer)
+
+## Complete Working Example
+
+Copy and paste this complete server code to get started immediately. This gives you a fully functional RAG backend in under 50 lines of code:
+
+<CodeGroup dropdown>
+
+```javascript app.js lines expandable
+require('dotenv').config();
+const express = require("express");
+const app = express();
+const axios = require("axios");
+
+app.use(express.json());
+
+const ROUTE = "https://api.liquidindex.dev"
+
+app.post("/create-customer", async (req, res) => {
+    const response = await axios.post(`${ROUTE}/customer/create`, {
+        project_id: process.env.PROJECT_ID,
+        name: req.body.name,
+    }, {
+        headers: {
+            Authorization: `Bearer ${process.env.API_KEY}`,
+        }
+    });
+    return res.status(200).json({ customer_id: response.data.customer_id });
+});
+
+
+app.post("/create-session", async (req, res) => {
+    const { customer_id } = req.body;
+    const response = await axios.post(`${ROUTE}/session/multi-tenant`, {
+        project_id: process.env.PROJECT_ID,
+        services: ["all"],
+        customer_id: customer_id,
+        success_url: "http://localhost:3000?success=true",
+        cancel_url: "http://localhost:3000?cancel=true",
+    }, {
+        headers: {
+            Authorization: `Bearer ${process.env.API_KEY}`,
+        }
+    });
+    res.redirect(303, response.data.url);
+});
+
+
+app.post("/query", async (req, res) => {
+    const { query, customer_id } = req.body;
+    const response = await axios.post(`${ROUTE}/query/customer`, {
+        customer_id: customer_id,
+        query: query,
+        top_k: 5
+    }, {
+        headers: {
+            Authorization: `Bearer ${process.env.API_KEY}`,
+        }
+    });
+    return res.status(200).json(response.data);
+});
+
+app.listen(5000, () => {
+  console.log("Server is running on port 5000");
+});
+```
+
+```python app.py lines expandable
+import os
+from flask import Flask, request, jsonify, redirect
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+app = Flask(__name__)
+
+ROUTE = "https://api.liquidindex.dev"
+
+@app.route('/create-customer', methods=['POST'])
+def create_customer():
+    response = requests.post(f"{ROUTE}/customer/create", json={
+        'project_id': os.getenv('PROJECT_ID'),
+        'name': request.json['name'],
+    }, headers={
+        'Authorization': f'Bearer {os.getenv("API_KEY")}',
+    })
+    return jsonify({'customer_id': response.json()['customer_id']}), 200
+
+@app.route('/create-session', methods=['POST'])
+def create_session():
+    customer_id = request.json['customer_id']
+    response = requests.post(f"{ROUTE}/session/multi-tenant", json={
+        'project_id': os.getenv('PROJECT_ID'),
+        'services': ["all"],
+        'customer_id': customer_id,
+        'success_url': "http://localhost:3000?success=true",
+        'cancel_url': "http://localhost:3000?cancel=true",
+    }, headers={
+        'Authorization': f'Bearer {os.getenv("API_KEY")}',
+    })
+    return redirect(response.json()['url'], code=303)
+
+@app.route('/query', methods=['POST'])
+def query():
+    data = request.json
+    query_text = data['query']
+    customer_id = data['customer_id']
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    response = requests.post(f"{ROUTE}/query/customer", json={
+        'customer_id': customer_id,
+        'query': query_text,
+        'top_k': 5
+    }, headers={
+        'Authorization': f'Bearer {os.getenv("API_KEY")}',
+    })
+    return jsonify(response.json()), 200
 
-### Step 2: Deploy your changes
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
+```
+</CodeGroup>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+## Test Your Implementation
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+<Steps>
+  <Step title="Start Your Server">
+    <CodeGroup>
+    ```bash Node.js
+    node app.js
+    ```
+    ```bash Python
+    python app.py
+    ```
+    </CodeGroup>
+  </Step>
+  <Step title="Create a Customer">
+    ```bash
+    curl -X POST http://localhost:5000/create-customer \
+      -H "Content-Type: application/json" \
+      -d '{"name": "Test Customer"}'
+    ```
+  </Step>
+  <Step title="Create Upload Session">
+    ```bash
+    curl -X POST http://localhost:5000/create-session \
+      -H "Content-Type: application/json" \
+      -d '{"customer_id": "CUSTOMER_ID_FROM_STEP_2"}'
+    ```
+    Visit the returned URL to upload documents.
+  </Step>
+  <Step title="Query the Data">
+    ```bash
+    curl -X POST http://localhost:5000/query \
+      -H "Content-Type: application/json" \
+      -d '{"customer_id": "CUSTOMER_ID", "query": "What is this document about?"}'
+    ```
+  </Step>
+</Steps>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+## What's Next?
 
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+- **Production Ready:** Add authentication, error handling, and rate limiting
+- **Single Tenant:** Need a simpler setup? Check out [Single-Tenant Sessions](/api-reference/endpoint/session-st)
+- **Advanced Features:** Explore [Subpages](/api-reference/endpoint/subpages) and [Internet Search](/api-reference/endpoint/internet-search)
+- **Concepts:** Learn more about [Multi-Tenant Architecture](/concepts#multi-tenant)

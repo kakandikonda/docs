@@ -667,7 +667,23 @@
                   "properties": {
                     "results": {
                       "type": "string",
-                      "description": "The search results"
+                      "description": "An AI generated response to the query with citations"
+                    },
+					"urls": {
+						"type": "array",
+						"description": "The URLs used to generate the response",
+						"items": {
+							"type": "string"
+						}
+					},
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "read_units": {
+                          "type": "integer",
+                          "description": "The number of read units consumed"
+                        }
+                      }
                     }
                   }
                 }

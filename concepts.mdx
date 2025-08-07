@@ -1,0 +1,96 @@
+---
+title: 'Concepts'
+icon: "book"
+description: 'Common concepts of RAG'
+---
+
+This page outlines some common concepts of LiquidIndex, that will help you understand how to use LiquidIndex effectively.
+
+## What are LiquidIndex's core values?
+
+Retrieval Augmented Generation (RAG) contains way too many rabbit holes, and no team should have to waste time setting it up when its just a side feature to their product. Just use LiquidIndex
+
+From the start, LiquidIndex follows these core principles:
+
+- **Simplicity:** Should be easy to use... why else?
+- **Speed:** Your latency is important to us, and we deliver.
+- **Flexibility:** We want to make it as easy as possible for you to integrate us into anything.
+- **Vibes:** Because who doesn't like an API with good vibes?
+
+Pretty simple, right?
+
+## What is RAG (Retrieval Augmented Generation)
+
+Retrieval-Augmented Generation (RAG) is a method for helping AI models answer questions more accurately by letting them "look things up" before they respond.
+
+Here's the thing about AI: most large language models are trained on tons of data, but that data is fixed at a certain point in time. So if you ask a question about something recent, or very specific to your business, or even just too detailed for the model to memorize, it might not know, or worse, it might guess.
+
+**That's where RAG comes in.** It adds a retrieval step before generating an answer:
+
+**Step 1: Search** → The AI searches through your specific documents or knowledge base  
+**Step 2: Retrieve** → It grabs the most relevant chunks of information  
+**Step 3: Generate** → It uses those chunks to write a grounded, accurate response  
+
+Think of it like giving the AI its own research assistant that quietly runs to your knowledge base, finds the right pages, and helps craft an answer based on what it actually found.
+
+**But here's the catch:** RAG gets complicated fast. You're not just asking the model to respond anymore — you're asking it to search well, pick the right context, and blend that information into a natural-sounding reply. If the retrieval isn't accurate, or the documents aren't structured well, the quality drops.
+
+That's the messy part LiquidIndex handles for you. We structure your content properly, set up the retrieval engine to find what actually matters, and make sure your AI doesn't just sound smart, but is genuinely helpful and grounded in your data.
+
+
+
+
+
+
+## Single-Tenant vs Multi-Tenant
+
+The biggest decision you'll make when building with RAG is choosing your architecture. Most platforms force you to pick one approach, but LiquidIndex supports both seamlessly.
+
+### Single-Tenant
+One shared knowledge base for your entire application.
+
+This is the simpler model. All your documents live in one place, and any user can search through the same pool of information. Think company wiki, customer support bot, or internal documentation search.
+
+**Perfect for:** 
+- Internal tools
+- shared knowledge bases
+- customer support bots
+
+### Multi-Tenant  
+Private data spaces for each of your users.
+
+This is where things get more powerful. Every customer gets their own isolated document collection that only they can access. 
+When someone uploads a contract or personal document, it stays completely private from other users.
+
+**Perfect for:** 
+- SaaS platforms
+
+
+### What you should choose
+If your users are uploading their own documents and expect privacy, you want multi-tenant. If everyone shares the same knowledge base, single-tenant works great.
+
+
+## What are Customers?
+
+A **Customer** in LiquidIndex is basically a **data container.** Think of it as creating a separate filing cabinet for each user in your application.
+
+When you create a customer, you're setting up an isolated space where documents can live and be searched. Each customer gets their own private collection that's completely separate from everyone else's data.
+
+**When to create customers:**
+- New user signs up → Create a customer
+- User wants separate workspaces → Multiple customers per user  
+- Team collaboration → Multiple users share one customer ID
+
+## Upload Sessions
+
+Instead of dealing with file uploads on your own servers, LiquidIndex gives you **Upload Sessions** - secure URLs where users upload documents directly to us.
+
+Here's how it works:
+
+1. **Create Upload Session:** Your backend calls the session API and gets back a secure upload URL.
+2. **Redirect User:** Redirect your user to that URL where they'll see our upload interface.
+3. **User Uploads:** User uploads files or connects Google Drive through our hosted interface.
+4. **User Returns:** User gets redirected back to your success or cancel URL when done.
+5. **Processing Happens:** We automatically process, chunk, and index all uploaded documents.
+
+**The big benefit:** You never touch the files. No storage headaches, no format conversion, no processing pipelines. Users upload directly to us, and you get clean, searchable data back through the query APIs.
