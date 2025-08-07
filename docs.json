@@ -62,12 +62,6 @@
         "tab": "Changelog",
         "groups": [
           {
-            "group": "Overview",
-            "pages": [
-              "changelog/introduction"
-            ]
-          },
-          {
             "group": "Version Updates",
             "pages": [
               "changelog/versions/v0.0.10",
@@ -80,6 +74,12 @@
               "changelog/versions/v0.0.3",
               "changelog/versions/v0.0.2",
               "changelog/versions/v0.0.1"
+            ]
+          },
+          {
+            "group": "Overview",
+            "pages": [
+              "changelog/introduction"
             ]
           }
         ]
